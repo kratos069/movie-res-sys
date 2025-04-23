@@ -1,0 +1,25 @@
+POST    /users/register
+POST    /users/login
+GET     /users/me
+
+POST    /movies
+GET     /movies
+GET     /movies/:id
+PUT     /movies/:id
+DELETE  /movies/:id
+
+POST    /showtimes
+GET     /showtimes
+GET     /showtimes/:id
+PUT     /showtimes/:id
+DELETE  /showtimes/:id
+
+GET     /showtimes/:id/seats
+
+POST    /reservations
+GET     /reservations
+GET     /reservations/:id
+DELETE  /reservations/:id
+
+POST    /payments/checkout
+POST    /payments/webhook
