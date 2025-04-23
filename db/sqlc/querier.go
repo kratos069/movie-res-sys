@@ -7,16 +7,19 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	CancelReservation(ctx context.Context, arg CancelReservationParams) error
 	CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateShowtime(ctx context.Context, arg CreateShowtimeParams) (Showtime, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteMovie(ctx context.Context, movieID int32) error
 	GetMovie(ctx context.Context, movieID int32) (Movie, error)
+	GetSessionByID(ctx context.Context, id uuid.UUID) (Session, error)
 	GetShowtime(ctx context.Context, showtimeID int32) (Showtime, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, userID int64) (User, error)

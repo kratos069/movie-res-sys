@@ -10,22 +10,29 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (name, email, hashed_password)
-VALUES ($1, $2, $3)
-RETURNING user_id, name, email, hashed_password, role, created_at
+INSERT INTO users (name, username, email, hashed_password)
+VALUES ($1, $2, $3, $4)
+RETURNING user_id, username, name, email, hashed_password, role, created_at
 `
 
 type CreateUserParams struct {
 	Name           string `json:"name"`
+	Username       string `json:"username"`
 	Email          string `json:"email"`
 	HashedPassword string `json:"hashed_password"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Name, arg.Email, arg.HashedPassword)
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Name,
+		arg.Username,
+		arg.Email,
+		arg.HashedPassword,
+	)
 	var i User
 	err := row.Scan(
 		&i.UserID,
+		&i.Username,
 		&i.Name,
 		&i.Email,
 		&i.HashedPassword,
@@ -36,7 +43,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT user_id, name, email, hashed_password, role, created_at FROM users
+SELECT user_id, username, name, email, hashed_password, role, created_at FROM users
 WHERE email = $1
 `
 
@@ -45,6 +52,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	var i User
 	err := row.Scan(
 		&i.UserID,
+		&i.Username,
 		&i.Name,
 		&i.Email,
 		&i.HashedPassword,
@@ -55,7 +63,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT user_id, name, email, hashed_password, role, created_at FROM users
+SELECT user_id, username, name, email, hashed_password, role, created_at FROM users
 WHERE user_id = $1
 `
 
@@ -64,6 +72,7 @@ func (q *Queries) GetUserByID(ctx context.Context, userID int64) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.UserID,
+		&i.Username,
 		&i.Name,
 		&i.Email,
 		&i.HashedPassword,

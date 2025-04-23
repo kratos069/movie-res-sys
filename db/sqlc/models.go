@@ -7,6 +7,7 @@ package db
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -40,6 +41,17 @@ type Seat struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type Session struct {
+	ID           uuid.UUID `json:"id"`
+	Username     string    `json:"username"`
+	RefreshToken string    `json:"refresh_token"`
+	UserAgent    string    `json:"user_agent"`
+	ClientIp     string    `json:"client_ip"`
+	IsBlocked    bool      `json:"is_blocked"`
+	ExpiredAt    time.Time `json:"expired_at"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 type Showtime struct {
 	ShowtimeID int32            `json:"showtime_id"`
 	MovieID    int32            `json:"movie_id"`
@@ -50,6 +62,7 @@ type Showtime struct {
 
 type User struct {
 	UserID         int64     `json:"user_id"`
+	Username       string    `json:"username"`
 	Name           string    `json:"name"`
 	Email          string    `json:"email"`
 	HashedPassword string    `json:"hashed_password"`
