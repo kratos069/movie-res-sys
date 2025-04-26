@@ -7,7 +7,7 @@ import (
 )
 
 // To prevent race conditions, like two users reserving
-// the same seat at the same time.
+// the same seat at the same time, we use transactions.
 
 type ReserveMultipleSeatsTxParams struct {
 	UserID     int64   `json:"user_id"`
@@ -82,4 +82,3 @@ func (store *SQLStore) CancelReservationTx(ctx context.Context,
 		})
 	})
 }
-

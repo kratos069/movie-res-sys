@@ -38,3 +38,47 @@ func (q *Queries) ListAllSeats(ctx context.Context) ([]Seat, error) {
 	}
 	return items, nil
 }
+
+const listSeatsForShowtime = `-- name: ListSeatsForShowtime :many
+SELECT 
+    s.seat_id,
+    s.row,
+    s.number,
+    CASE WHEN r.seat_id IS NOT NULL THEN true ELSE false END AS is_booked
+FROM seats s
+LEFT JOIN reservations r 
+    ON s.seat_id = r.seat_id AND r.showtime_id = $1
+ORDER BY s.row, s.number
+`
+
+type ListSeatsForShowtimeRow struct {
+	SeatID   int32 `json:"seat_id"`
+	Row      int32 `json:"row"`
+	Number   int32 `json:"number"`
+	IsBooked bool  `json:"is_booked"`
+}
+
+func (q *Queries) ListSeatsForShowtime(ctx context.Context, showtimeID int32) ([]ListSeatsForShowtimeRow, error) {
+	rows, err := q.db.Query(ctx, listSeatsForShowtime, showtimeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListSeatsForShowtimeRow{}
+	for rows.Next() {
+		var i ListSeatsForShowtimeRow
+		if err := rows.Scan(
+			&i.SeatID,
+			&i.Row,
+			&i.Number,
+			&i.IsBooked,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

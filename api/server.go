@@ -57,10 +57,19 @@ func (server *Server) setupRoutes() {
 	router.GET("/movies", server.listAllMovies)
 	router.GET("/movies/:id", server.getMovieByID)
 
+	router.GET("/showtimes/:id", server.getShowtime)
+	router.GET("/showtimes", server.listShowtimes)
+
+	router.GET("/showtimes/:id/seats", server.listSeatsForShowtime)
+
 	// for both users and admins
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker,
 		[]string{util.AdminRole, util.CustomerRole}))
 	authRoutes.GET("/users/:user_id", server.getUserByID)
+
+	authRoutes.POST("/reservations", server.reserveSeats)
+	authRoutes.GET("/reservations", server.listReservationsByUser)
+	authRoutes.DELETE("/reservations/:id", server.cancelReservation)
 
 	// for only admins
 	adminRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker,
@@ -69,6 +78,9 @@ func (server *Server) setupRoutes() {
 	adminRoutes.PUT("/movies/:id", server.updateMovie)
 	adminRoutes.DELETE("/movies/:id", server.deleteMovie)
 
+	adminRoutes.POST("/showtimes", server.createShowtime)
+	adminRoutes.DELETE("/showtimes/:id", server.deleteShowtime)
+	
 	server.router = router
 
 }

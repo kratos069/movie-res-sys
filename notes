@@ -20,6 +20,3 @@ POST    /reservations
 GET     /reservations
 GET     /reservations/:id
 DELETE  /reservations/:id
-
-POST    /payments/checkout
-POST    /payments/webhook
