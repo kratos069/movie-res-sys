@@ -37,6 +37,16 @@ func (q *Queries) CreateShowtime(ctx context.Context, arg CreateShowtimeParams) 
 	return i, err
 }
 
+const deleteShowtime = `-- name: DeleteShowtime :exec
+DELETE FROM showtimes
+WHERE showtime_id = $1
+`
+
+func (q *Queries) DeleteShowtime(ctx context.Context, showtimeID int32) error {
+	_, err := q.db.Exec(ctx, deleteShowtime, showtimeID)
+	return err
+}
+
 const getShowtime = `-- name: GetShowtime :one
 SELECT showtime_id, movie_id, start_time, price, created_at FROM showtimes
 WHERE showtime_id = $1
@@ -55,11 +65,62 @@ func (q *Queries) GetShowtime(ctx context.Context, showtimeID int32) (Showtime, 
 	return i, err
 }
 
+const listShowtimesBetween = `-- name: ListShowtimesBetween :many
+SELECT s.showtime_id, s.movie_id, s.start_time, s.price, s.created_at, m.title, m.poster_url
+FROM showtimes s
+JOIN movies m ON m.movie_id = s.movie_id
+WHERE s.start_time >= $1 AND s.start_time < $2
+ORDER BY s.start_time
+`
+
+type ListShowtimesBetweenParams struct {
+	StartTime   pgtype.Timestamp `json:"start_time"`
+	StartTime_2 pgtype.Timestamp `json:"start_time_2"`
+}
+
+type ListShowtimesBetweenRow struct {
+	ShowtimeID int32            `json:"showtime_id"`
+	MovieID    int32            `json:"movie_id"`
+	StartTime  pgtype.Timestamp `json:"start_time"`
+	Price      pgtype.Numeric   `json:"price"`
+	CreatedAt  time.Time        `json:"created_at"`
+	Title      string           `json:"title"`
+	PosterUrl  string           `json:"poster_url"`
+}
+
+func (q *Queries) ListShowtimesBetween(ctx context.Context, arg ListShowtimesBetweenParams) ([]ListShowtimesBetweenRow, error) {
+	rows, err := q.db.Query(ctx, listShowtimesBetween, arg.StartTime, arg.StartTime_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListShowtimesBetweenRow{}
+	for rows.Next() {
+		var i ListShowtimesBetweenRow
+		if err := rows.Scan(
+			&i.ShowtimeID,
+			&i.MovieID,
+			&i.StartTime,
+			&i.Price,
+			&i.CreatedAt,
+			&i.Title,
+			&i.PosterUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listShowtimesByDate = `-- name: ListShowtimesByDate :many
 SELECT s.showtime_id, s.movie_id, s.start_time, s.price, s.created_at, m.title, m.poster_url
 FROM showtimes s
 JOIN movies m ON m.movie_id = s.movie_id
-WHERE DATE(s.start_time) = $1
+WHERE s.start_time >= $1
 ORDER BY s.start_time
 `
 

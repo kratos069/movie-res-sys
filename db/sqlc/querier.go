@@ -18,6 +18,7 @@ type Querier interface {
 	CreateShowtime(ctx context.Context, arg CreateShowtimeParams) (Showtime, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteMovie(ctx context.Context, movieID int32) error
+	DeleteShowtime(ctx context.Context, showtimeID int32) error
 	GetMovie(ctx context.Context, movieID int32) (Movie, error)
 	GetSessionByID(ctx context.Context, id uuid.UUID) (Session, error)
 	GetShowtime(ctx context.Context, showtimeID int32) (Showtime, error)
@@ -29,6 +30,8 @@ type Querier interface {
 	ListMovies(ctx context.Context, arg ListMoviesParams) ([]Movie, error)
 	ListReservationsByShowtime(ctx context.Context, showtimeID int32) ([]ListReservationsByShowtimeRow, error)
 	ListReservationsByUser(ctx context.Context, userID int64) ([]ListReservationsByUserRow, error)
+	ListSeatsForShowtime(ctx context.Context, showtimeID int32) ([]ListSeatsForShowtimeRow, error)
+	ListShowtimesBetween(ctx context.Context, arg ListShowtimesBetweenParams) ([]ListShowtimesBetweenRow, error)
 	ListShowtimesByDate(ctx context.Context, startTime pgtype.Timestamp) ([]ListShowtimesByDateRow, error)
 	ReserveSeat(ctx context.Context, arg ReserveSeatParams) (Reservation, error)
 	UpdateMovie(ctx context.Context, arg UpdateMovieParams) (Movie, error)
